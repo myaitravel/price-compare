@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>가격비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzqgFOp5zLxFnUT59r7It-eZlpxq4ScB8",
+    authDomain: "clips-97919.firebaseapp.com",
+    projectId: "clips-97919",
+    storageBucket: "clips-97919.firebasestorage.app",
+    messagingSenderId: "316738081229",
+    appId: "1:316738081229:web:1154a58277ecc5db107484"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const USER_ID = 'user1';
+  window.fbSaveWishlist = async function(data) {
+    try { await setDoc(doc(db, 'wishlist', USER_ID), { items: data }); } catch(e) { console.error(e); }
+  };
+  window.fbLoadWishlist = async function() {
+    try {
+      const snap = await getDoc(doc(db, 'wishlist', USER_ID));
+      if (snap.exists()) return snap.data().items || [];
+    } catch(e) { console.error(e); }
+    return [];
+  };
+  window.fbReady = true;
+  window.dispatchEvent(new Event('fbReady'));
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d14; --surface: #16161f; --surface2: #1e1e2a; --surface3: #252535;
+  --border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.15);
+  --text: #f0f0f5; --text-muted: #8080a0; --text-faint: #40405a;
+  --accent: #00d4aa; --accent-dim: rgba(0,212,170,0.1); --accent2: #00a888;
+  --red: #ff5f7a; --red-dim: rgba(255,95,122,0.1);
+  --yellow: #ffd700; --yellow-dim: rgba(255,215,0,0.1);
+  --purple: #a78bfa; --purple-dim: rgba(167,139,250,0.1);
+  --radius: 14px; --radius-sm: 8px;
+}
+html { -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100dvh; }
+
+/* ── PIN 잠금화면 ── */
+#lockscreen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+#lockscreen.hidden { display: none; }
+.lock-box { background: var(--surface); border: 1px solid var(--border-hover); border-radius: 20px; padding: 40px 32px; width: 320px; max-width: 95vw; text-align: center; }
+.lock-icon { font-size: 36px; margin-bottom: 12px; }
+.lock-title { font-family: 'Gmarket Sans', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.lock-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 28px; }
+.pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 8px; }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border-hover); transition: all .15s; }
+.pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+.pin-dot.error { background: var(--red); border-color: var(--red); }
+.pin-error { font-size: 12px; color: var(--red); min-height: 20px; margin-bottom: 16px; font-family: 'Gmarket Sans', sans-serif; }
+.pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pin-key { padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: 'Gmarket Sans', sans-serif; font-size: 18px; font-weight: 700; cursor: pointer; transition: all .15s; }
+.pin-key:hover { background: var(--accent-dim); border-color: rgba(0,212,170,0.3); color: var(--accent); }
+.pin-key:active { transform: scale(0.94); }
+.pin-key.del { font-size: 14px; color: var(--text-muted); }
+.pin-key.empty { visibility: hidden; pointer-events: none; }
+
+/* ── HEADER ── */
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+.logo { font-family: 'Gmarket Sans', sans-serif; font-size: 18px; font-weight: 700; white-space: nowrap; }
+.logo span { color: var(--accent); }
+.search-wrap { flex: 1; display: flex; gap: 8px; min-width: 200px; }
+.search-input { flex: 1; padding: 9px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; outline: none; transition: border-color .2s; }
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-faint); }
+.search-btn { padding: 9px 18px; border-radius: var(--radius-sm); background: var(--accent); border: none; color: #0d0d14; font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .15s; white-space: nowrap; }
+.search-btn:hover { opacity: 0.85; }
+.hdr-btn { padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text-muted); font-family: 'Gmarket Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all .15s; }
+.hdr-btn:hover { color: var(--text); border-color: var(--accent); }
+.hdr-btn.set { border-color: rgba(0,212,170,0.4); color: var(--accent); }
+
+/* ── LAYOUT ── */
+.layout { display: flex; min-height: calc(100dvh - 65px); }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 300px; min-width: 300px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 65px; height: calc(100dvh - 65px); overflow-y: auto; }
+.sidebar-title { font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.badge { font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 2px 8px; border-radius: 20px; }
+.wishlist-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 8px; color: var(--text-faint); font-size: 12px; padding: 30px 16px; text-align: center; }
+.wishlist-item { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-start; transition: background .15s; }
+.wishlist-item:hover { background: var(--surface2); }
+.w-thumb { width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover; background: var(--surface3); flex-shrink: 0; }
+.w-info { flex: 1; min-width: 0; }
+.w-name { font-size: 11px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 3px; }
+.w-price { font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); }
+.w-mall { font-size: 10px; color: var(--text-faint); }
+.w-link { font-size: 10px; color: var(--accent); text-decoration: none; display: block; margin-top: 2px; }
+.w-del { background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 15px; padding: 2px; flex-shrink: 0; transition: color .15s; }
+.w-del:hover { color: var(--red); }
+
+/* AI 분석 버튼 */
+.ai-analyze-btn { margin: 12px; padding: 10px; border-radius: var(--radius-sm); background: var(--purple-dim); border: 1px solid rgba(167,139,250,0.3); color: var(--purple); font-family: 'Gmarket Sans', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; width: calc(100% - 24px); }
+.ai-analyze-btn:hover { background: rgba(167,139,250,0.2); }
+.ai-result { margin: 0 12px 12px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border-hover); font-size: 12px; line-height: 1.7; color: var(--text-muted); display: none; }
+.ai-result.show { display: block; }
+
+/* ── MAIN ── */
+.main { flex: 1; padding: 20px; overflow: hidden; }
+.status { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 12px; color: var(--text-faint); }
+.status .icon { font-size: 48px; }
+.status p { font-size: 14px; font-family: 'Gmarket Sans', sans-serif; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+.result-title { font-family: 'Gmarket Sans', sans-serif; font-size: 15px; font-weight: 700; }
+.result-title span { color: var(--accent); }
+.sort-btns { display: flex; gap: 6px; }
+.sort-btn { padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text-muted); font-family: 'Gmarket Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s; }
+.sort-btn.active { background: var(--accent-dim); border-color: rgba(0,212,170,0.4); color: var(--accent); }
+
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.product-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all .2s; position: relative; }
+.product-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+.product-thumb-wrap { aspect-ratio: 1; overflow: hidden; background: var(--surface2); }
+.product-thumb { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.product-card:hover .product-thumb { transform: scale(1.04); }
+.product-body { padding: 10px 12px 12px; }
+.product-mall { font-size: 10px; color: var(--text-faint); margin-bottom: 3px; }
+.product-name { font-size: 12px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 7px; }
+.product-price { font-family: 'Gmarket Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--accent); }
+.product-actions { display: flex; gap: 6px; margin-top: 9px; }
+.btn-wish { flex: 1; padding: 6px; border-radius: var(--radius-sm); border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text-muted); font-size: 11px; font-family: 'Gmarket Sans', sans-serif; font-weight: 700; cursor: pointer; transition: all .15s; }
+.btn-wish:hover, .btn-wish.wished { background: var(--yellow-dim); border-color: rgba(255,215,0,0.4); color: var(--yellow); }
+.btn-go { flex: 1; padding: 6px; border-radius: var(--radius-sm); background: var(--accent); border: none; color: #0d0d14; font-size: 11px; font-family: 'Gmarket Sans', sans-serif; font-weight: 700; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: opacity .15s; }
+.btn-go:hover { opacity: 0.85; }
+.lowest-badge { position: absolute; top: 8px; left: 8px; background: var(--accent); color: #0d0d14; font-family: 'Gmarket Sans', sans-serif; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+
+/* ── 모달 ── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border-hover); border-radius: 18px; padding: 26px; width: 420px; max-width: 95vw; }
+.modal-title { font-family: 'Gmarket Sans', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.modal-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 11px; font-weight: 700; color: var(--text-faint); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+.field input, .field select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 13px; outline: none; transition: border-color .2s; }
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field select option { background: var(--surface2); }
+.modal-btns { display: flex; gap: 8px; margin-top: 18px; }
+.btn-cancel { flex: 1; padding: 10px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border-hover); color: var(--text-muted); font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+.btn-save { flex: 2; padding: 10px; border-radius: var(--radius-sm); background: var(--accent); border: none; color: #0d0d14; font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 768px) {
+  header { padding: 10px 14px; }
+  .search-wrap { order: 3; width: 100%; min-width: unset; }
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; min-width: unset; position: static; height: auto; max-height: 280px; border-right: none; border-bottom: 1px solid var(--border); }
+  .main { padding: 14px; }
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- PIN 잠금화면 -->
+<div id="lockscreen">
+  <div class="lock-box">
+    <div class="lock-icon">🏷️</div>
+    <div class="lock-title">가격비교</div>
+    <div class="lock-sub" id="lockSub">비밀번호를 입력하세요</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+      <div class="pin-dot" id="dot-4"></div>
+      <div class="pin-dot" id="dot-5"></div>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" onclick="pinInput('0')">0</button>
+      <button class="pin-key del" onclick="pinDelete()">⌫</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">가격<span>비교</span></div>
+  <div class="search-wrap">
+    <input type="text" class="search-input" id="searchInput" placeholder="상품 검색 (예: 아이폰 15, 갤럭시 S25)" />
+    <button class="search-btn" onclick="searchProducts()">검색</button>
+  </div>
+  <button class="hdr-btn" id="naverKeyBtn" onclick="openSettingsModal()">⚙️ 설정</button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">🛒 관심 상품 <span class="badge" id="wishlistCount">0</span></div>
+    <button class="ai-analyze-btn" onclick="aiAnalyzeWishlist()">✨ AI 관심상품 분석</button>
+    <div class="ai-result" id="aiResult"></div>
+    <div id="wishlistArea"></div>
+  </aside>
+
+  <main class="main">
+    <div class="status" id="statusArea">
+      <div class="icon">🔍</div>
+      <p>상품을 검색해보세요</p>
+    </div>
+    <div id="resultArea" style="display:none;">
+      <div class="result-header">
+        <div class="result-title" id="resultTitle"></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button class="hdr-btn" style="font-size:11px;" onclick="aiAnalyzeResults()">✨ AI 결과 분석</button>
+          <div class="sort-btns">
+            <button class="sort-btn active" id="sortSim" onclick="sortBy('sim')">관련순</button>
+            <button class="sort-btn" id="sortAsc" onclick="sortBy('asc')">낮은가격</button>
+            <button class="sort-btn" id="sortDsc" onclick="sortBy('dsc')">높은가격</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+  </main>
+</div>
+
+<!-- 설정 모달 -->
+<div class="overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+  <div class="modal">
+    <div class="modal-title">⚙️ API 키 설정</div>
+    <div class="modal-sub">네이버 개발자센터와 AI API 키를 입력하세요. 키는 이 기기에만 저장돼요.</div>
+    <div class="field">
+      <label>네이버 Client ID</label>
+      <input type="text" id="naverClientId" placeholder="네이버 Client ID" />
+    </div>
+    <div class="field">
+      <label>네이버 Client Secret</label>
+      <input type="password" id="naverClientSecret" placeholder="네이버 Client Secret" />
+    </div>
+    <div class="field">
+      <label>AI API 키</label>
+      <input type="password" id="aiApiKey" placeholder="sk-..." />
+    </div>
+    <div class="field">
+      <label>AI API 제공사</label>
+      <select id="aiProvider">
+        <option value="aiprimetech">AI Prime Tech (aiprimetech.io)</option>
+        <option value="anthropic">Claude (anthropic.com)</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeSettings()">취소</button>
+      <button class="btn-save" onclick="saveSettings()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── PIN 잠금 ── */
+const PIN_KEY = 'pricecomp_pin';
+const PIN_LEN = 6;
+var pinBuffer = '';
+var pinMode = 'check';
+
+function initLock() {
+  var saved = localStorage.getItem(PIN_KEY);
+  if (!saved) {
+    pinMode = 'setup';
+    document.getElementById('lockSub').textContent = '사용할 비밀번호 6자리를 설정하세요';
+  }
+}
+function pinInput(num) {
+  if (pinBuffer.length >= PIN_LEN) return;
+  pinBuffer += num;
+  updateDots();
+  if (pinBuffer.length === PIN_LEN) setTimeout(checkPin, 120);
+}
+function pinDelete() { pinBuffer = pinBuffer.slice(0, -1); updateDots(); }
+function updateDots() {
+  for (var i = 0; i < PIN_LEN; i++) {
+    var d = document.getElementById('dot-' + i);
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
+  document.getElementById('pinError').textContent = '';
+}
+function checkPin() {
+  var saved = localStorage.getItem(PIN_KEY);
+  if (pinMode === 'setup') {
+    localStorage.setItem(PIN_KEY, pinBuffer);
+    document.getElementById('lockscreen').classList.add('hidden');
+  } else {
+    if (pinBuffer === saved) {
+      document.getElementById('lockscreen').classList.add('hidden');
+    } else {
+      for (var i = 0; i < PIN_LEN; i++) document.getElementById('dot-' + i).classList.add('error');
+      document.getElementById('pinError').textContent = '비밀번호가 틀렸어요';
+      setTimeout(function() { pinBuffer = ''; updateDots(); }, 600);
+      return;
+    }
+  }
+  pinBuffer = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('lockscreen').classList.contains('hidden')) return;
+  if (e.key >= '0' && e.key <= '9') pinInput(e.key);
+  if (e.key === 'Backspace') pinDelete();
+});
+initLock();
+
+/* ── 설정 관리 ── */
+var naverClientId = localStorage.getItem('naver_id') || '';
+var naverClientSecret = localStorage.getItem('naver_secret') || '';
+var aiApiKey = localStorage.getItem('ai_api_key') || '';
+var aiProvider = localStorage.getItem('ai_provider') || 'aiprimetech';
+
+function updateSettingsBtn() {
+  var btn = document.getElementById('naverKeyBtn');
+  btn.textContent = (naverClientId && naverClientSecret) ? '✅ 설정' : '⚙️ 설정';
+  btn.classList.toggle('set', !!(naverClientId && naverClientSecret));
+}
+function openSettingsModal() {
+  document.getElementById('naverClientId').value = naverClientId;
+  document.getElementById('naverClientSecret').value = naverClientSecret;
+  document.getElementById('aiApiKey').value = aiApiKey;
+  document.getElementById('aiProvider').value = aiProvider;
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
+function closeSettingsOutside(e) { if (e.target === document.getElementById('settingsOverlay')) closeSettings(); }
+function saveSettings() {
+  naverClientId = document.getElementById('naverClientId').value.trim();
+  naverClientSecret = document.getElementById('naverClientSecret').value.trim();
+  aiApiKey = document.getElementById('aiApiKey').value.trim();
+  aiProvider = document.getElementById('aiProvider').value;
+  localStorage.setItem('naver_id', naverClientId);
+  localStorage.setItem('naver_secret', naverClientSecret);
+  localStorage.setItem('ai_api_key', aiApiKey);
+  localStorage.setItem('ai_provider', aiProvider);
+  updateSettingsBtn();
+  closeSettings();
+}
+
+/* ── 검색 ── */
+var currentSort = 'sim';
+var currentQuery = '';
+var wishlist = [];
+
+async function searchProducts() {
+  var query = document.getElementById('searchInput').value.trim();
+  if (!query) { alert('검색어를 입력해주세요!'); return; }
+  if (!naverClientId || !naverClientSecret) {
+    alert('먼저 설정에서 네이버 API 키를 입력해주세요!');
+    openSettingsModal(); return;
+  }
+  currentQuery = query;
+  showLoading();
+  try {
+    var url = 'https://naver-proxy.devilwood555.workers.dev?query=' + encodeURIComponent(query) + '&display=30&sort=' + currentSort;
+    var res = await fetch(url, {
+      headers: { 'X-Naver-Client-Id': naverClientId, 'X-Naver-Client-Secret': naverClientSecret }
+    });
+    if (!res.ok) { var err = await res.json(); throw new Error(err.errorMessage || '검색 실패'); }
+    var data = await res.json();
+    renderResults(data.items || [], query);
+  } catch(e) { showError(e.message); }
+}
+
+function sortBy(sort) {
+  currentSort = sort;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sort' + sort.charAt(0).toUpperCase() + sort.slice(1)).classList.add('active');
+  if (currentQuery) searchProducts();
+}
+function showLoading() {
+  document.getElementById('statusArea').innerHTML = '<div class="icon" style="display:inline-block;animation:spin 1s linear infinite;">⏳</div><p>검색 중...</p>';
+  document.getElementById('statusArea').style.display = 'flex';
+  document.getElementById('resultArea').style.display = 'none';
+}
+function showError(msg) {
+  document.getElementById('statusArea').innerHTML = '<div class="icon">😅</div><p>' + msg + '</p>';
+  document.getElementById('statusArea').style.display = 'flex';
+  document.getElementById('resultArea').style.display = 'none';
+}
+function cleanTitle(t) { return t.replace(/<b>/g,'').replace(/<\/b>/g,''); }
+function formatPrice(p) { return Number(p).toLocaleString('ko-KR') + '원'; }
+
+function renderResults(items, query) {
+  document.getElementById('statusArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  document.getElementById('resultTitle').innerHTML = '"<span>' + query + '</span>" ' + items.length + '개';
+  if (!items.length) {
+    document.getElementById('productGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-faint);font-size:14px;">검색 결과가 없어요</div>';
+    return;
+  }
+  var prices = items.map(i => Number(i.lprice)).filter(p => p > 0);
+  var minPrice = Math.min(...prices);
+  window._searchItems = items;
+  document.getElementById('productGrid').innerHTML = items.map(function(item, idx) {
+    var price = Number(item.lprice);
+    var isLowest = price === minPrice && price > 0;
+    var isWished = wishlist.some(w => w.link === item.link);
+    var title = cleanTitle(item.title);
+    return '<div class="product-card">' +
+      (isLowest ? '<div class="lowest-badge">최저가</div>' : '') +
+      '<div class="product-thumb-wrap">' +
+        (item.image ? '<img class="product-thumb" src="' + item.image + '" alt="" loading="lazy" onerror="this.parentNode.style.background=\'var(--surface3)\';this.remove()">' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;">📦</div>') +
+      '</div>' +
+      '<div class="product-body">' +
+        '<div class="product-mall">' + (item.mallName||'') + '</div>' +
+        '<div class="product-name">' + title + '</div>' +
+        '<div class="product-price">' + (price>0?formatPrice(price):'가격 미정') + '</div>' +
+        '<div class="product-actions">' +
+          '<button class="btn-wish' + (isWished?' wished':'') + '" onclick="toggleWish(' + idx + ')" id="wish-' + idx + '">' + (isWished?'★ 담김':'☆ 담기') + '</button>' +
+          '<a class="btn-go" href="' + item.link + '" target="_blank" rel="noopener">구매→</a>' +
+        '</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+/* ── 장바구니 ── */
+function toggleWish(idx) {
+  var item = window._searchItems[idx];
+  if (!item) return;
+  var existIdx = wishlist.findIndex(w => w.link === item.link);
+  if (existIdx >= 0) { wishlist.splice(existIdx, 1); }
+  else { wishlist.push({ title: cleanTitle(item.title), price: Number(item.lprice), image: item.image||'', link: item.link, mall: item.mallName||'', addedAt: new Date().toISOString() }); }
+  saveWishlist(); renderWishlist();
+  var btn = document.getElementById('wish-' + idx);
+  if (btn) { var isWished = wishlist.some(w => w.link === item.link); btn.textContent = isWished?'★ 담김':'☆ 담기'; btn.classList.toggle('wished', isWished); }
+}
+function removeWish(idx) { wishlist.splice(idx, 1); saveWishlist(); renderWishlist(); }
+function renderWishlist() {
+  document.getElementById('wishlistCount').textContent = wishlist.length;
+  var area = document.getElementById('wishlistArea');
+  if (!wishlist.length) { area.innerHTML = '<div class="wishlist-empty"><div style="font-size:32px;">🛒</div><p>☆ 담기를 눌러<br>관심 상품을 저장하세요</p></div>'; return; }
+  area.innerHTML = wishlist.map(function(item, idx) {
+    return '<div class="wishlist-item">' +
+      (item.image ? '<img class="w-thumb" src="' + item.image + '" onerror="this.style.display=\'none\'">' : '<div class="w-thumb" style="display:flex;align-items:center;justify-content:center;font-size:18px;">📦</div>') +
+      '<div class="w-info"><div class="w-name">' + item.title + '</div>' +
+      '<div class="w-price">' + (item.price>0?formatPrice(item.price):'가격 미정') + '</div>' +
+      '<div class="w-mall">' + item.mall + '</div>' +
+      '<a class="w-link" href="' + item.link + '" target="_blank">구매 페이지 →</a></div>' +
+      '<button class="w-del" onclick="removeWish(' + idx + ')">×</button></div>';
+  }).join('');
+}
+async function saveWishlist() { if (window.fbSaveWishlist) await window.fbSaveWishlist(wishlist); }
+async function loadWishlist() {
+  if (window.fbLoadWishlist) { var data = await window.fbLoadWishlist(); if (data && data.length) wishlist = data; }
+  renderWishlist();
+}
+
+/* ── AI 분석 ── */
+function getAiBaseUrl() {
+  return aiProvider === 'aiprimetech' ? 'https://aiprimetech.io/v1' : 'https://api.anthropic.com/v1';
+}
+
+async function callAI(prompt) {
+  if (!aiApiKey) { alert('설정에서 AI API 키를 입력해주세요!'); openSettingsModal(); return null; }
+  var baseUrl = getAiBaseUrl();
+  var headers = { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' };
+  if (aiProvider === 'aiprimetech') { headers['Authorization'] = 'Bearer ' + aiApiKey; }
+  else { headers['x-api-key'] = aiApiKey; headers['anthropic-version'] = '2023-06-01'; }
+  try {
+    var res = await fetch(baseUrl + '/messages', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
+    });
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message || 'AI 오류');
+    return data.content[0].text;
+  } catch(e) {
+    // aiprimetech 실패시 anthropic으로 재시도
+    if (aiProvider === 'aiprimetech') {
+      try {
+        var res2 = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': aiApiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
+        });
+        var data2 = await res2.json();
+        if (data2.error) throw new Error(data2.error.message);
+        return data2.content[0].text;
+      } catch(e2) { alert('AI 오류: ' + e2.message); return null; }
+    }
+    alert('AI 오류: ' + e.message); return null;
+  }
+}
+
+async function aiAnalyzeResults() {
+  if (!window._searchItems || !window._searchItems.length) { alert('먼저 상품을 검색해주세요!'); return; }
+  var items = window._searchItems.slice(0, 10);
+  var list = items.map(function(i, idx) { return (idx+1) + '. ' + cleanTitle(i.title) + ' - ' + (i.lprice>0?formatPrice(i.lprice):'가격미정') + ' (' + (i.mallName||'') + ')'; }).join('\n');
+  var prompt = '다음 상품 검색 결과를 분석해서 한국어로 짧게 요약해줘. 최저가 추천, 가성비 좋은 상품, 주의사항 등을 알려줘:\n\n' + list;
+  var aiBtn = document.querySelector('.result-header .hdr-btn');
+  if (aiBtn) { aiBtn.textContent = '분석 중...'; aiBtn.disabled = true; }
+  var result = await callAI(prompt);
+  if (aiBtn) { aiBtn.textContent = '✨ AI 결과 분석'; aiBtn.disabled = false; }
+  if (result) {
+    var aiResult = document.getElementById('aiResult');
+    aiResult.textContent = result;
+    aiResult.classList.add('show');
+    aiResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+async function aiAnalyzeWishlist() {
+  if (!wishlist.length) { alert('관심 상품을 먼저 담아주세요!'); return; }
+  var list = wishlist.map(function(i, idx) { return (idx+1) + '. ' + i.title + ' - ' + (i.price>0?formatPrice(i.price):'가격미정') + ' (' + i.mall + ')'; }).join('\n');
+  var prompt = '다음은 내 관심 상품 목록이야. 한국어로 구매 추천 및 비교 분석을 짧게 해줘:\n\n' + list;
+  var btn = document.querySelector('.ai-analyze-btn');
+  btn.textContent = '분석 중...'; btn.disabled = true;
+  var result = await callAI(prompt);
+  btn.textContent = '✨ AI 관심상품 분석'; btn.disabled = false;
+  if (result) {
+    var aiResult = document.getElementById('aiResult');
+    aiResult.textContent = result;
+    aiResult.classList.add('show');
+  }
+}
+
+// 키보드
+document.getElementById('searchInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') searchProducts(); });
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('lockscreen').classList.contains('hidden') && e.key === 'Escape') closeSettings();
+});
+
+// 초기화
+updateSettingsBtn();
+renderWishlist();
+if (window.fbReady) { loadWishlist(); }
+else { window.addEventListener('fbReady', loadWishlist); }
+</script>
+</body>
+</html>
