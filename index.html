@@ -152,6 +152,48 @@ header { background: var(--surface); border-bottom: 1px solid var(--border); pad
 .btn-cancel { flex: 1; padding: 10px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border-hover); color: var(--text-muted); font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
 .btn-save { flex: 2; padding: 10px; border-radius: var(--radius-sm); background: var(--accent); border: none; color: #0d0d14; font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
 
+/* ── 탭 ── */
+.tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--surface); }
+.tab-btn { padding: 11px 20px; font-family: 'Gmarket Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── 핫딜 ── */
+.hotdeal-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.hotdeal-toolbar .hd-status { font-size: 11px; color: var(--text-muted); flex: 1; }
+.keyword-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.keyword-input { flex: 1; min-width: 120px; padding: 7px 12px; border-radius: 20px; border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text); font-size: 12px; outline: none; }
+.keyword-input:focus { border-color: var(--accent); }
+.keyword-add-btn { padding: 7px 14px; border-radius: 20px; background: var(--accent); border: none; color: #0d0d14; font-family: 'Gmarket Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.keyword-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 12px; border-radius: 20px; background: var(--accent-dim); border: 1px solid rgba(0,212,170,0.3); color: var(--accent); font-size: 11px; font-family: 'Gmarket Sans', sans-serif; font-weight: 700; }
+.keyword-tag button { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; opacity: .6; }
+.keyword-tag button:hover { opacity: 1; }
+.notif-btn { padding: 7px 13px; border-radius: 20px; border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text-muted); font-family: 'Gmarket Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.notif-btn.on { background: var(--yellow-dim); border-color: rgba(255,215,0,0.4); color: var(--yellow); }
+.hotdeal-list { display: flex; flex-direction: column; gap: 10px; }
+.hd-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; transition: all .2s; cursor: pointer; text-decoration: none; }
+.hd-card:hover { border-color: var(--border-hover); transform: translateX(3px); }
+.hd-card.highlight { border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.04); }
+.hd-badge { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--surface2); }
+.hd-badge.hot { background: var(--red-dim); }
+.hd-badge.kw { background: var(--yellow-dim); }
+.hd-info { flex: 1; min-width: 0; }
+.hd-title { font-size: 13px; font-weight: 500; line-height: 1.45; margin-bottom: 5px; color: var(--text); }
+.hd-title mark { background: rgba(255,215,0,0.25); color: var(--yellow); border-radius: 3px; padding: 0 2px; font-style: normal; }
+.hd-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-faint); flex-wrap: wrap; }
+.hd-meta .hd-src { color: var(--accent); font-weight: 700; }
+.hd-meta .hd-time { }
+.hd-empty { text-align: center; padding: 60px 20px; color: var(--text-faint); font-size: 13px; }
+.hd-load-indicator { text-align: center; padding: 20px; color: var(--text-faint); font-size: 12px; }
+.source-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.src-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text-muted); font-family: 'Gmarket Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s; }
+.src-btn.active { background: var(--accent-dim); border-color: rgba(0,212,170,0.4); color: var(--accent); }
+.refresh-btn { padding: 7px 13px; border-radius: 20px; border: 1px solid var(--border-hover); background: var(--surface2); color: var(--text-muted); font-family: 'Gmarket Sans', sans-serif; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s; }
+.refresh-btn:hover { color: var(--accent); border-color: rgba(0,212,170,0.4); }
+.countdown { font-size: 11px; color: var(--text-faint); font-family: 'Gmarket Sans', sans-serif; }
+
 @media (max-width: 768px) {
   header { padding: 10px 14px; }
   .search-wrap { order: 3; width: 100%; min-width: unset; }
@@ -213,24 +255,56 @@ header { background: var(--surface); border-bottom: 1px solid var(--border); pad
     <div id="wishlistArea"></div>
   </aside>
 
-  <main class="main">
-    <div class="status" id="statusArea">
-      <div class="icon">🔍</div>
-      <p>상품을 검색해보세요</p>
+  <main class="main" style="padding:0;display:flex;flex-direction:column;">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabSearch" onclick="switchTab('search')">🔍 가격비교</button>
+      <button class="tab-btn" id="tabHotdeal" onclick="switchTab('hotdeal')">🔥 핫딜 모니터</button>
     </div>
-    <div id="resultArea" style="display:none;">
-      <div class="result-header">
-        <div class="result-title" id="resultTitle"></div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <button class="hdr-btn" style="font-size:11px;" onclick="aiAnalyzeResults()">✨ AI 결과 분석</button>
-          <div class="sort-btns">
-            <button class="sort-btn active" id="sortSim" onclick="sortBy('sim')">관련순</button>
-            <button class="sort-btn" id="sortAsc" onclick="sortBy('asc')">낮은가격</button>
-            <button class="sort-btn" id="sortDsc" onclick="sortBy('dsc')">높은가격</button>
+
+    <!-- 가격비교 탭 -->
+    <div class="tab-panel active" id="panelSearch" style="padding:20px;flex:1;">
+      <div class="status" id="statusArea">
+        <div class="icon">🔍</div>
+        <p>상품을 검색해보세요</p>
+      </div>
+      <div id="resultArea" style="display:none;">
+        <div class="result-header">
+          <div class="result-title" id="resultTitle"></div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button class="hdr-btn" style="font-size:11px;" onclick="aiAnalyzeResults()">✨ AI 결과 분석</button>
+            <div class="sort-btns">
+              <button class="sort-btn active" id="sortSim" onclick="sortBy('sim')">관련순</button>
+              <button class="sort-btn" id="sortAsc" onclick="sortBy('asc')">낮은가격</button>
+              <button class="sort-btn" id="sortDsc" onclick="sortBy('dsc')">높은가격</button>
+            </div>
           </div>
         </div>
+        <div class="product-grid" id="productGrid"></div>
       </div>
-      <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <!-- 핫딜 모니터 탭 -->
+    <div class="tab-panel" id="panelHotdeal" style="padding:20px;flex:1;overflow-y:auto;">
+      <div class="keyword-bar">
+        <input class="keyword-input" id="keywordInput" placeholder="키워드 추가 (예: 아이패드, 맥북...)" onkeydown="if(event.key==='Enter')addKeyword()" />
+        <button class="keyword-add-btn" onclick="addKeyword()">+ 추가</button>
+        <button class="notif-btn" id="notifBtn" onclick="toggleNotif()">🔔 알림 OFF</button>
+      </div>
+      <div id="keywordTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+      <div class="source-tabs">
+        <button class="src-btn active" id="src-all" onclick="setSource('all')">전체</button>
+        <button class="src-btn" id="src-ppomppu" onclick="setSource('ppomppu')">뽐뿌</button>
+        <button class="src-btn" id="src-clien" onclick="setSource('clien')">클리앙</button>
+        <button class="src-btn" id="src-ruliweb" onclick="setSource('ruliweb')">루리웹</button>
+      </div>
+      <div class="hotdeal-toolbar">
+        <span class="hd-status" id="hdStatus">로딩 중...</span>
+        <span class="countdown" id="hdCountdown"></span>
+        <button class="refresh-btn" onclick="fetchHotdeals(true)">↻ 새로고침</button>
+      </div>
+      <div id="hotdealList" class="hotdeal-list">
+        <div class="hd-load-indicator">핫딜 불러오는 중... ⏳</div>
+      </div>
     </div>
   </main>
 </div>
@@ -531,17 +605,167 @@ async function aiAnalyzeWishlist() {
   }
 }
 
+/* ── 탭 전환 ── */
+function switchTab(tab) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("tab" + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add("active");
+  document.getElementById("panel" + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add("active");
+  if (tab === "hotdeal" && !window._hdLoaded) fetchHotdeals(true);
+}
+
 // 키보드
 document.getElementById('searchInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') searchProducts(); });
 document.addEventListener('keydown', function(e) {
   if (document.getElementById('lockscreen').classList.contains('hidden') && e.key === 'Escape') closeSettings();
 });
 
+
+/* ── 핫딜 모니터 ── */
+var hdKeywords = JSON.parse(localStorage.getItem('hd_keywords') || '[]');
+var hdNotifOn = localStorage.getItem('hd_notif') === 'true';
+var hdSource = 'all';
+var hdItems = [];
+var hdSeenIds = new Set(JSON.parse(localStorage.getItem('hd_seen') || '[]'));
+var hdCountdownVal = 0;
+var hdCountdownTimer = null;
+var HD_INTERVAL = 180;
+
+var HD_SOURCES = {
+  ppomppu: { name: '뽐뿌', url: 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.ppomppu.co.kr/rss.php?id=ppomppu') },
+  clien:   { name: '클리앙', url: 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.clien.net/service/rss') },
+  ruliweb: { name: '루리웹', url: 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://bbs.ruliweb.com/market/board/1020/rss') }
+};
+
+function renderKeywordTags() {
+  var area = document.getElementById('keywordTags');
+  if (!area) return;
+  if (!hdKeywords.length) { area.innerHTML = '<span style="font-size:11px;color:var(--text-faint);">키워드 없음 — 추가하면 해당 글 강조 + 알림</span>'; return; }
+  area.innerHTML = hdKeywords.map(function(kw, i) {
+    return '<span class="keyword-tag">' + kw + '<button onclick="removeKeyword(' + i + ')">×</button></span>';
+  }).join('');
+}
+function addKeyword() {
+  var val = document.getElementById('keywordInput').value.trim();
+  if (!val) return;
+  if (!hdKeywords.includes(val)) { hdKeywords.push(val); localStorage.setItem('hd_keywords', JSON.stringify(hdKeywords)); }
+  document.getElementById('keywordInput').value = '';
+  renderKeywordTags(); renderHotdeals();
+}
+function removeKeyword(i) {
+  hdKeywords.splice(i, 1);
+  localStorage.setItem('hd_keywords', JSON.stringify(hdKeywords));
+  renderKeywordTags(); renderHotdeals();
+}
+function toggleNotif() {
+  if (!hdNotifOn) {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(function(perm) {
+        if (perm === 'granted') { hdNotifOn = true; localStorage.setItem('hd_notif', 'true'); updateNotifBtn(); }
+        else { alert('브라우저 주소창 왼쪽 아이콘에서 알림을 허용해주세요.'); }
+      });
+    }
+  } else { hdNotifOn = false; localStorage.setItem('hd_notif', 'false'); updateNotifBtn(); }
+}
+function updateNotifBtn() {
+  var btn = document.getElementById('notifBtn');
+  if (!btn) return;
+  btn.textContent = hdNotifOn ? '🔔 알림 ON' : '🔔 알림 OFF';
+  btn.classList.toggle('on', hdNotifOn);
+}
+function setSource(src) {
+  hdSource = src;
+  document.querySelectorAll('.src-btn').forEach(function(b) { b.classList.remove('active'); });
+  var el = document.getElementById('src-' + src);
+  if (el) el.classList.add('active');
+  renderHotdeals();
+}
+function matchesKeyword(text) {
+  if (!hdKeywords.length) return false;
+  var t = text.toLowerCase();
+  return hdKeywords.some(function(kw) { return t.includes(kw.toLowerCase()); });
+}
+function highlightKeywords(text) {
+  var result = text;
+  hdKeywords.forEach(function(kw) {
+    var re = new RegExp('(' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    result = result.replace(re, '<mark>$1</mark>');
+  });
+  return result;
+}
+function timeAgo(dateStr) {
+  var d = new Date(dateStr);
+  if (isNaN(d)) return '';
+  var diff = Math.floor((Date.now() - d) / 1000);
+  if (diff < 60) return diff + '초 전';
+  if (diff < 3600) return Math.floor(diff/60) + '분 전';
+  if (diff < 86400) return Math.floor(diff/3600) + '시간 전';
+  return Math.floor(diff/86400) + '일 전';
+}
+async function fetchHotdeals(manual) {
+  var statusEl = document.getElementById('hdStatus');
+  if (statusEl) statusEl.textContent = '새로고침 중...';
+  var sources = hdSource === 'all' ? Object.keys(HD_SOURCES) : [hdSource];
+  var allItems = [];
+  for (var i = 0; i < sources.length; i++) {
+    var key = sources[i];
+    var src = HD_SOURCES[key];
+    try {
+      var res = await fetch(src.url);
+      var data = await res.json();
+      if (data.items) {
+        data.items.forEach(function(item) {
+          allItems.push({ id: item.guid || item.link, title: item.title || '', link: item.link || '', date: item.pubDate || '', source: src.name });
+        });
+      }
+    } catch(e) {}
+  }
+  allItems.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+  if (hdNotifOn && hdKeywords.length && hdItems.length > 0) {
+    allItems.forEach(function(item) {
+      if (!hdSeenIds.has(item.id) && matchesKeyword(item.title)) {
+        try { new Notification('🔥 핫딜 키워드 알림!', { body: item.title }); } catch(e) {}
+      }
+    });
+  }
+  allItems.forEach(function(item) { hdSeenIds.add(item.id); });
+  localStorage.setItem('hd_seen', JSON.stringify([...hdSeenIds].slice(-500)));
+  hdItems = allItems;
+  window._hdLoaded = true;
+  if (statusEl) statusEl.textContent = allItems.length + '개 항목 · ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+  renderHotdeals();
+  clearInterval(hdCountdownTimer);
+  hdCountdownVal = HD_INTERVAL;
+  hdCountdownTimer = setInterval(function() {
+    hdCountdownVal--;
+    var cdEl = document.getElementById('hdCountdown');
+    if (hdCountdownVal <= 0) { clearInterval(hdCountdownTimer); fetchHotdeals(false); return; }
+    var m = Math.floor(hdCountdownVal/60), s = hdCountdownVal % 60;
+    if (cdEl) cdEl.textContent = '다음 갱신 ' + m + ':' + (s<10?'0':'') + s;
+  }, 1000);
+}
+function renderHotdeals() {
+  var list = document.getElementById('hotdealList');
+  if (!list) return;
+  var filtered = hdSource === 'all' ? hdItems : hdItems.filter(function(i) { return i.source === HD_SOURCES[hdSource].name; });
+  if (!filtered.length) { list.innerHTML = '<div class="hd-empty">😴 핫딜 정보가 없어요<br><small style="color:var(--text-faint);font-size:11px;">새로고침을 눌러보세요</small></div>'; return; }
+  list.innerHTML = filtered.map(function(item) {
+    var isKw = matchesKeyword(item.title);
+    return '<a class="hd-card' + (isKw?' highlight':'') + '" href="' + item.link + '" target="_blank" rel="noopener">' +
+      '<div class="hd-badge' + (isKw?' kw':' hot') + '">' + (isKw?'⭐':'🔥') + '</div>' +
+      '<div class="hd-info"><div class="hd-title">' + highlightKeywords(item.title) + '</div>' +
+      '<div class="hd-meta"><span class="hd-src">' + item.source + '</span><span class="hd-time">' + timeAgo(item.date) + '</span></div></div></a>';
+  }).join('');
+}
+
+
 // 초기화
 updateSettingsBtn();
 renderWishlist();
 if (window.fbReady) { loadWishlist(); }
 else { window.addEventListener('fbReady', loadWishlist); }
+renderKeywordTags();
+updateNotifBtn();
 </script>
 </body>
 </html>
