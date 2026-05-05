@@ -634,8 +634,37 @@ var HD_SOURCES = {
   coolenjoy: { name: '쿨엔조이', rss: 'https://coolenjoy.net/rss.xml?bo_table=deal' }
 };
 
-function rssProxyUrl(rssUrl) {
-  return 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
+// 여러 CORS 프록시를 차례로 시도. 하나가 죽어도 다음 걸로 넘어감.
+var CORS_PROXIES = [
+  function(url) { return 'https://corsproxy.io/?' + encodeURIComponent(url); },
+  function(url) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url); },
+  function(url) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); }
+];
+
+async function fetchWithTimeout(url, timeoutMs) {
+  // AbortSignal은 일부 환경(앱 래퍼/iframe)에서 postMessage 복제 불가 → Promise.race 사용
+  return Promise.race([
+    fetch(url),
+    new Promise(function(_, reject) {
+      setTimeout(function() { reject(new Error('timeout ' + timeoutMs + 'ms')); }, timeoutMs);
+    })
+  ]);
+}
+
+async function fetchRssViaProxy(rssUrl) {
+  for (var i = 0; i < CORS_PROXIES.length; i++) {
+    try {
+      var proxyUrl = CORS_PROXIES[i](rssUrl);
+      var res = await fetchWithTimeout(proxyUrl, 8000);
+      if (!res.ok) { console.warn('Proxy ' + i + ' status ' + res.status + ' for ' + rssUrl); continue; }
+      var text = await res.text();
+      // 너무 짧으면 정상 RSS 아님 (에러 페이지 등)
+      if (text && text.length > 100 && text.indexOf('<') !== -1) return text;
+    } catch(e) {
+      console.warn('Proxy ' + i + ' failed for ' + rssUrl + ':', e.message);
+    }
+  }
+  return null;
 }
 
 function parseRSS(xmlStr) {
@@ -723,21 +752,31 @@ async function fetchHotdeals(manual) {
   if (statusEl) statusEl.textContent = '새로고침 중...';
   var sources = hdSource === 'all' ? Object.keys(HD_SOURCES) : [hdSource];
   var allItems = [];
-  for (var i = 0; i < sources.length; i++) {
-    var key = sources[i];
+  var successCount = 0;
+  var failedSources = [];
+  // 모든 사이트를 병렬로 fetch (전체 모드일 때 5배 빠름)
+  var results = await Promise.all(sources.map(async function(key) {
     var src = HD_SOURCES[key];
     try {
-      var res = await fetch(rssProxyUrl(src.rss));
-      var data = await res.json();
-      var xmlStr = data.contents;
+      var xmlStr = await fetchRssViaProxy(src.rss);
       if (xmlStr) {
         var parsed = parseRSS(xmlStr);
-        parsed.forEach(function(item) {
-          allItems.push({ id: item.guid || item.link, title: item.title || '', link: item.link || '', date: item.pubDate || '', source: src.name });
-        });
+        if (parsed.length > 0) {
+          return { ok: true, name: src.name, items: parsed.map(function(item) {
+            return { id: item.guid || item.link, title: item.title || '', link: item.link || '', date: item.pubDate || '', source: src.name };
+          })};
+        }
       }
-    } catch(e) { console.warn(src.name, e.message); }
-  }
+      return { ok: false, name: src.name, reason: 'empty' };
+    } catch(e) {
+      console.warn(src.name, e.message);
+      return { ok: false, name: src.name, reason: e.message };
+    }
+  }));
+  results.forEach(function(r) {
+    if (r.ok) { successCount++; allItems.push.apply(allItems, r.items); }
+    else { failedSources.push(r.name); }
+  });
   allItems.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
   if (hdNotifOn && hdKeywords.length && hdItems.length > 0) {
     allItems.forEach(function(item) {
@@ -750,7 +789,15 @@ async function fetchHotdeals(manual) {
   localStorage.setItem('hd_seen', JSON.stringify([...hdSeenIds].slice(-500)));
   hdItems = allItems;
   window._hdLoaded = true;
-  if (statusEl) statusEl.textContent = allItems.length + '개 항목 · ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+  if (statusEl) {
+    var timeStr = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+    if (allItems.length === 0) {
+      statusEl.textContent = '⚠️ 모든 RSS 로드 실패 — 프록시/사이트 차단 (F12 콘솔 확인)';
+    } else {
+      statusEl.textContent = allItems.length + '개 항목 · ' + successCount + '/' + sources.length + ' 소스 · ' + timeStr +
+        (failedSources.length ? ' · 실패: ' + failedSources.join(',') : '');
+    }
+  }
   renderHotdeals();
   clearInterval(hdCountdownTimer);
   hdCountdownVal = HD_INTERVAL;
